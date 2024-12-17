@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  db-1:
+    image: postgres:15
+    container_name: db-1
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      retries: 5
+
+  app-1:
+    build: .
+    container_name: app-1
+    environment:
+      - DB_HOST=db-1
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - BACKUP_DIR=${BACKUP_DIR}
+      - DAYS_TO_BACKUP=${DAYS_TO_BACKUP}
+      - INTERVAL=${INTERVAL}  # Runs every 7 seconds
+    volumes:
+      - ./backups:/backups
+    depends_on:
+      db-1:
+        condition: service_healthy
+
+volumes:
+  pgdata:
