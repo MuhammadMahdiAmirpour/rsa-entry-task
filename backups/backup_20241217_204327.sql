@@ -1,0 +1,7 @@
+(266, 'Kelsey Burke', datetime.datetime(2024, 10, 27, 7, 28, 8, 255069))
+(251, 'Lynn Bryant', datetime.datetime(2024, 10, 27, 10, 46, 11, 83682))
+(250, 'Julie Jones', datetime.datetime(2024, 10, 28, 4, 2, 41, 227886))
+(288, 'Craig Munoz', datetime.datetime(2024, 10, 28, 21, 23, 35, 184039))
+(256, 'Rebecca Ingram', datetime.datetime(2024, 10, 30, 6, 19, 31, 73936))
+(260, 'Heather Suarez', datetime.datetime(2024, 11, 1, 10, 31, 45, 371046))
+(265, 'Lori Chen', datetime.datetime(2024, 11, 3, 17, 44, 47, 560715))

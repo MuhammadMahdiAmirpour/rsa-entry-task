@@ -1,0 +1,8 @@
+(268, 'Kim Lynch', datetime.datetime(2024, 10, 19, 18, 3, 39, 193875))
+(255, 'Brian Perez', datetime.datetime(2024, 10, 21, 19, 46, 59, 316737))
+(270, 'Kathryn Martinez', datetime.datetime(2024, 10, 22, 22, 8, 43, 879556))
+(289, 'Cory Anderson', datetime.datetime(2024, 10, 23, 4, 45, 29, 266440))
+(277, 'Alexander Roberts', datetime.datetime(2024, 10, 25, 22, 2, 28, 854742))
+(259, 'Natalie Harper', datetime.datetime(2024, 10, 26, 0, 51, 4, 381391))
+(279, 'Michelle Maynard', datetime.datetime(2024, 10, 26, 8, 15, 1, 280389))
+(276, 'Adam Palmer', datetime.datetime(2024, 10, 26, 10, 8, 26, 116792))

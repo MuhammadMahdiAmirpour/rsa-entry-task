@@ -44,14 +44,14 @@ def initialize_database():
     """
     try:
         logger.info("Initializing database connection...")
-        conn = psycopg2.connect(
+        connection = psycopg2.connect(
             host=DB_HOST,
             port=DB_PORT,
             database=DB_NAME,
             user=DB_USER,
             password=DB_PASSWORD
         )
-        cursor = conn.cursor()
+        crsr = connection.cursor()
 
         # Create the 'records' table if it doesn't exist
         create_table_query = """
@@ -61,7 +61,7 @@ def initialize_database():
             date TIMESTAMP NOT NULL
         );
         """
-        cursor.execute(create_table_query)
+        crsr.execute(create_table_query)
         logger.info("Table 'records' created or already exists.")
 
         # Generate dummy data using Faker
@@ -76,19 +76,19 @@ def initialize_database():
 
         # Insert dummy data
         insert_query = "INSERT INTO records (name, date) VALUES (%s, %s);"
-        cursor.executemany(insert_query, dummy_records)
+        crsr.executemany(insert_query, dummy_records)
 
         # Commit changes
-        conn.commit()
-        logger.info(f"{num_records} dummy records inserted into 'records' table.")
+        connection.commit()
+        logger.info("%s dummy records inserted into 'records' table.", num_records)
 
         # Close connection
-        cursor.close()
-        conn.close()
+        crsr.close()
+        connection.close()
         logger.info("Database initialization completed successfully.")
 
     except Exception as e:
-        logger.error(f"Error occurred during database initialization: {e}")
+        logger.error("Error occurred during database initialization: %s", e)
 
 def backup_and_clean():
     """
@@ -98,22 +98,22 @@ def backup_and_clean():
         logger.info("Starting backup and cleanup process...")
 
         # Connect to the database
-        conn = psycopg2.connect(
+        connection = psycopg2.connect(
             host=DB_HOST,
             port=DB_PORT,
             database=DB_NAME,
             user=DB_USER,
             password=DB_PASSWORD
         )
-        cursor = conn.cursor()
+        crsr = connection.cursor()
 
         # Fetch the oldest records (up to 10% of total records or at least 1)
-        cursor.execute("SELECT COUNT(*) FROM records")
-        total_records = cursor.fetchone()[0]
+        crsr.execute("SELECT COUNT(*) FROM records")
+        total_records = crsr.fetchone()[0]
         records_to_backup = max(1, int(total_records * 0.1))  # At least 1 record, or 10% of total
 
-        cursor.execute("SELECT * FROM records ORDER BY date ASC LIMIT %s", (records_to_backup,))
-        records = cursor.fetchall()
+        crsr.execute("SELECT * FROM records ORDER BY date ASC LIMIT %s", (records_to_backup,))
+        records = crsr.fetchall()
 
         if not records:
             logger.info("No records found to back up.")
@@ -121,22 +121,22 @@ def backup_and_clean():
             # Save the backup to a file
             backup_filename = f"backup_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
             backup_filepath = os.path.join(BACKUP_DIR, backup_filename)
-            with open(backup_filepath, "w") as backup_file:
+            with open(backup_filepath, "w", encoding='utf-8') as backup_file:
                 for record in records:
                     backup_file.write(f"{record}\n")
-            logger.info(f"Backup saved to {backup_filepath}")
+            logger.info("Backup saved to %s", backup_filepath)
 
             # Delete backed-up records
-            cursor.execute("DELETE FROM records WHERE id IN (SELECT id FROM records ORDER BY date ASC LIMIT %s)", (records_to_backup,))
-            conn.commit()
-            logger.info(f"{cursor.rowcount} records backed up and deleted from the database.")
+            crsr.execute("DELETE FROM records WHERE id IN (SELECT id FROM records ORDER BY date ASC LIMIT %s)", (records_to_backup,))
+            connection.commit()
+            logger.info("%d records backed up and deleted from the database.", crsr.rowcount)
 
         # Close the connection
-        cursor.close()
-        conn.close()
+        crsr.close()
+        connection.close()
 
     except Exception as e:
-        logger.error(f"Error occurred during backup and cleanup: {e}")
+        logger.error("Error occurred during backup and cleanup: %s", e)
         raise
 
 if __name__ == "__main__":
@@ -168,13 +168,12 @@ if __name__ == "__main__":
                     logger.info(
                         "Database is now empty. Restarting the process.")
                     break
-                else:
-                    logger.info(f"Records remaining in the table: {row_count}")
+                logger.info("Records remaining in the table: %d", row_count)
 
                 logger.info(
-                    f"Sleeping for {INTERVAL} seconds before the next backup and clean...")
+                    "Sleeping for %d seconds before the next backup and clean...", INTERVAL)
                 time.sleep(INTERVAL)
 
         except Exception as e:
-            logger.error(f"An error occurred: {e}. Restarting the script...")
+            logger.error("An error occurred: %s. Restarting the script...", e)
             time.sleep(5)  # Wait 5 seconds before retrying
